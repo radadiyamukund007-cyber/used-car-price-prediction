@@ -1,0 +1,2521 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vehicle Intake — Spec Sheet</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --void: #0a0d12;
+        --void-2: #0e1219;
+        --panel: rgba(255, 255, 255, 0.045);
+        --panel-border: rgba(255, 255, 255, 0.09);
+        --steel: #6b7482;
+        --steel-dim: #454c57;
+        --paper: #f3f5f7;
+        --amber: #ffb020;
+        --amber-dim: rgba(255, 176, 32, 0.15);
+        --teal: #2be4c8;
+        --teal-dim: rgba(43, 228, 200, 0.18);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        background: var(--void);
+        color: var(--paper);
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      /* ---------- background blueprint layer ---------- */
+      .bp-grid {
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+          linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.035) 1px,
+            transparent 1px
+          );
+        background-size: 42px 42px;
+        mask-image: radial-gradient(
+          ellipse 90% 70% at 65% 45%,
+          black 10%,
+          transparent 75%
+        );
+        z-index: 0;
+      }
+      .bp-vignette {
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse 60% 55% at 68% 45%,
+            rgba(43, 228, 200, 0.05),
+            transparent 60%
+          ),
+          linear-gradient(
+            180deg,
+            var(--void) 0%,
+            var(--void-2) 55%,
+            var(--void) 100%
+          );
+        z-index: 0;
+      }
+      .car-wrap {
+        position: absolute;
+        right: -6%;
+        top: 50%;
+        transform: translateY(-50%);
+        width: min(72vw, 1150px);
+        z-index: 0;
+        opacity: 0.9;
+        pointer-events: none;
+      }
+      .car-wrap svg {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+      .car-line {
+        fill: none;
+        stroke: var(--teal);
+        stroke-width: 1.4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        filter: drop-shadow(0 0 6px rgba(43, 228, 200, 0.35));
+        opacity: 0.8;
+      }
+      .car-fill {
+        fill: rgba(43, 228, 200, 0.035);
+      }
+      .dim-line {
+        stroke: var(--steel-dim);
+        stroke-width: 1;
+      }
+      .dim-tick {
+        stroke: var(--steel-dim);
+        stroke-width: 1;
+      }
+      .dim-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        fill: var(--steel);
+        letter-spacing: 0.03em;
+      }
+      .wheel-spin {
+        transform-origin: center;
+        animation: spin 9s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* ---------- layout ---------- */
+      .stage {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        align-items: center;
+        max-width: 1360px;
+        margin: 0 auto;
+        padding: 64px 48px;
+        gap: 32px;
+      }
+
+      .intro {
+        padding-right: 16px;
+      }
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        letter-spacing: 0.18em;
+        color: var(--teal);
+        text-transform: uppercase;
+        margin-bottom: 22px;
+      }
+      .eyebrow::before {
+        content: "";
+        width: 22px;
+        height: 1px;
+        background: var(--teal);
+        display: inline-block;
+      }
+      h1 {
+        font-family: "Rajdhani", sans-serif;
+        font-weight: 700;
+        font-size: clamp(40px, 5vw, 68px);
+        line-height: 0.98;
+        letter-spacing: -0.01em;
+        color: var(--paper);
+      }
+      h1 span {
+        color: var(--steel);
+      }
+      .lede {
+        margin-top: 22px;
+        max-width: 420px;
+        color: var(--steel);
+        font-size: 15.5px;
+        line-height: 1.65;
+      }
+      .stats {
+        display: flex;
+        gap: 36px;
+        margin-top: 46px;
+      }
+      .stat b {
+        display: block;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 22px;
+        color: var(--paper);
+      }
+      .stat span {
+        font-size: 11.5px;
+        color: var(--steel);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      /* ---------- form card ---------- */
+      .card {
+        position: relative;
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border-radius: 18px;
+        padding: 38px 34px 32px;
+        box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.6);
+      }
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: 18px;
+        padding: 1px;
+        background: linear-gradient(
+          150deg,
+          rgba(43, 228, 200, 0.35),
+          transparent 30%,
+          transparent 70%,
+          rgba(255, 176, 32, 0.25)
+        );
+        -webkit-mask:
+          linear-gradient(#000 0 0) content-box,
+          linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+      }
+      .card-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 26px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid var(--panel-border);
+      }
+      .card-head h2 {
+        font-family: "Rajdhani", sans-serif;
+        font-size: 20px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+      }
+      .ticket {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--steel);
+      }
+
+      .field {
+        margin-bottom: 20px;
+        position: relative;
+      }
+      .field label {
+        display: block;
+        font-size: 11.5px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--steel);
+        margin-bottom: 8px;
+        transition: color 0.2s ease;
+      }
+      .field.focus label {
+        color: var(--amber);
+      }
+
+      .input-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-bottom: 1px solid var(--panel-border);
+        padding-bottom: 9px;
+        transition: border-color 0.2s ease;
+      }
+      .field.focus .input-row {
+        border-color: var(--amber);
+      }
+      .prefix,
+      .suffix {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 14px;
+        color: var(--steel);
+      }
+      input,
+      select {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: var(--paper);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 15px;
+        letter-spacing: 0.01em;
+      }
+      select {
+        appearance: none;
+        -webkit-appearance: none;
+        cursor: pointer;
+      }
+      select option {
+        background: #12161d;
+        color: var(--paper);
+      }
+      select:invalid {
+        color: var(--steel-dim);
+      }
+      .caret {
+        color: var(--steel);
+        font-size: 12px;
+        pointer-events: none;
+      }
+      input[type="text"] {
+        font-family: "Inter", sans-serif;
+        font-size: 15px;
+      }
+      input::placeholder {
+        color: var(--steel-dim);
+        font-family: "Inter", sans-serif;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px 18px;
+      }
+
+      .fuel-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .pill {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        letter-spacing: 0.04em;
+        padding: 9px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--panel-border);
+        color: var(--steel);
+        cursor: pointer;
+        background: transparent;
+        transition: all 0.18s ease;
+      }
+      .pill:hover {
+        border-color: var(--teal);
+        color: var(--paper);
+      }
+      .pill.active {
+        background: var(--teal-dim);
+        border-color: var(--teal);
+        color: var(--teal);
+      }
+
+      .submit-btn {
+        width: 100%;
+        margin-top: 28px;
+        padding: 15px 20px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--amber), #ff8a3d);
+        color: #1a1200;
+        font-family: "Rajdhani", sans-serif;
+        font-weight: 700;
+        font-size: 16px;
+        letter-spacing: 0.03em;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition:
+          transform 0.16s ease,
+          box-shadow 0.16s ease;
+        box-shadow: 0 12px 30px -10px rgba(255, 176, 32, 0.55);
+      }
+      .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 36px -10px rgba(255, 176, 32, 0.65);
+      }
+      .submit-btn:active {
+        transform: translateY(0);
+      }
+
+      .hint {
+        margin-top: 14px;
+        font-size: 11.5px;
+        color: var(--steel-dim);
+        text-align: center;
+      }
+
+      /* confirmation state */
+      .confirm {
+        display: none;
+        text-align: left;
+      }
+      .confirm.show {
+        display: block;
+      }
+      .form-body.hide {
+        display: none;
+      }
+      .confirm .check {
+        width: 46px;
+        height: 46px;
+        border-radius: 50%;
+        border: 1px solid var(--teal);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--teal);
+        font-size: 20px;
+        margin-bottom: 18px;
+      }
+      .confirm h3 {
+        font-family: "Rajdhani", sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+      .confirm p.sub {
+        color: var(--steel);
+        font-size: 13.5px;
+        margin-bottom: 22px;
+      }
+      .recap {
+        border: 1px solid var(--panel-border);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .recap-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 11px 16px;
+        font-size: 13.5px;
+        border-bottom: 1px solid var(--panel-border);
+        font-family: "JetBrains Mono", monospace;
+      }
+      .recap-row:last-child {
+        border-bottom: none;
+      }
+      .recap-row span:first-child {
+        color: var(--steel);
+        font-family: "Inter", sans-serif;
+      }
+      .recap-row span:last-child {
+        color: var(--paper);
+      }
+      .again-btn {
+        margin-top: 20px;
+        background: none;
+        border: 1px solid var(--panel-border);
+        color: var(--steel);
+        padding: 10px 16px;
+        border-radius: 8px;
+        font-family: "Inter", sans-serif;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .again-btn:hover {
+        color: var(--paper);
+        border-color: var(--steel);
+      }
+
+      .predicted-price {
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 600;
+        font-size: 44px;
+        color: var(--teal);
+        letter-spacing: -0.01em;
+        margin-bottom: 22px;
+        text-shadow: 0 0 24px rgba(43, 228, 200, 0.35);
+      }
+
+      /* condition "what-if" slider */
+      .condition-block {
+        margin-bottom: 26px;
+        padding: 18px 18px 16px;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--panel-border);
+        border-radius: 12px;
+      }
+      .condition-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 38px;
+      }
+      .condition-title {
+        font-family: "Rajdhani", sans-serif;
+        font-weight: 600;
+        font-size: 14.5px;
+        color: var(--paper);
+      }
+      .condition-note {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        color: var(--teal);
+      }
+      .condition-slider-wrap {
+        position: relative;
+        padding-top: 6px;
+      }
+      .condition-tooltip {
+        position: absolute;
+        top: -34px;
+        left: 0;
+        transform: translateX(-50%);
+        background: #12161d;
+        border: 1px solid var(--teal);
+        color: var(--teal);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12.5px;
+        font-weight: 600;
+        padding: 5px 10px;
+        border-radius: 8px;
+        white-space: nowrap;
+        pointer-events: none;
+        box-shadow: 0 8px 18px -6px rgba(0, 0, 0, 0.55);
+        transition: left 0.05s linear;
+      }
+      .condition-tooltip::after {
+        content: "";
+        position: absolute;
+        bottom: -5px;
+        left: 50%;
+        width: 8px;
+        height: 8px;
+        background: #12161d;
+        border-right: 1px solid var(--teal);
+        border-bottom: 1px solid var(--teal);
+        transform: translateX(-50%) rotate(45deg);
+      }
+      input[type="range"]#conditionSlider {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 8px;
+        border-radius: 999px;
+        background: linear-gradient(
+          90deg,
+          var(--steel-dim) 0%,
+          var(--steel-dim) 15%,
+          var(--teal) 15%,
+          var(--teal) 40%,
+          rgba(43, 228, 200, 0.32) 40%,
+          rgba(43, 228, 200, 0.32) 85%,
+          var(--amber) 85%,
+          var(--amber) 100%
+        );
+        cursor: pointer;
+        outline: none;
+        display: block;
+      }
+      #conditionSlider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--void);
+        border: 3px solid var(--paper);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        cursor: grab;
+      }
+      #conditionSlider::-webkit-slider-thumb:active {
+        cursor: grabbing;
+      }
+      #conditionSlider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--void);
+        border: 3px solid var(--paper);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        cursor: grab;
+      }
+      #conditionSlider::-moz-range-track {
+        height: 8px;
+        border-radius: 999px;
+        background: linear-gradient(
+          90deg,
+          var(--steel-dim) 0%,
+          var(--steel-dim) 15%,
+          var(--teal) 15%,
+          var(--teal) 40%,
+          rgba(43, 228, 200, 0.32) 40%,
+          rgba(43, 228, 200, 0.32) 85%,
+          var(--amber) 85%,
+          var(--amber) 100%
+        );
+      }
+      .condition-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+        font-size: 10px;
+        color: var(--steel-dim);
+        font-family: "JetBrains Mono", monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .condition-labels span.active {
+        color: var(--teal);
+      }
+      .base-estimate-note {
+        margin-top: 14px;
+        font-size: 11px;
+        color: var(--steel-dim);
+        font-family: "Inter", sans-serif;
+      }
+
+      .submit-btn:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+        transform: none !important;
+      }
+      .spinner {
+        width: 15px;
+        height: 15px;
+        border-radius: 50%;
+        border: 2px solid rgba(26, 18, 0, 0.35);
+        border-top-color: #1a1200;
+        animation: spin 0.7s linear infinite;
+        display: inline-block;
+      }
+
+      .err {
+        display: none;
+        margin-top: 16px;
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 90, 90, 0.35);
+        background: rgba(255, 90, 90, 0.08);
+        color: #ff9d9d;
+        font-size: 12.5px;
+        line-height: 1.5;
+      }
+      .err.show {
+        display: block;
+      }
+
+      /* car name autocomplete */
+      .car-search-wrapper {
+        position: relative;
+        width: 100%;
+      }
+      .car-suggestions {
+        display: none;
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 0;
+        right: 0;
+        background: #12161d;
+        border: 1px solid var(--panel-border);
+        border-radius: 10px;
+        max-height: 230px;
+        overflow-y: auto;
+        z-index: 30;
+        box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.55);
+      }
+      .car-suggestion {
+        padding: 10px 14px;
+        font-size: 13.5px;
+        font-family: "Inter", sans-serif;
+        color: var(--paper);
+        cursor: pointer;
+      }
+      .car-suggestion:hover {
+        background: rgba(43, 228, 200, 0.08);
+        color: var(--teal);
+      }
+      .no-car-results {
+        padding: 10px 14px;
+        font-size: 13px;
+        color: var(--steel-dim);
+        font-family: "Inter", sans-serif;
+      }
+
+      @media (max-width: 920px) {
+        .stage {
+          grid-template-columns: 1fr;
+          padding: 40px 22px;
+          gap: 40px;
+        }
+        .car-wrap {
+          top: -30px;
+          right: -20%;
+          width: 130vw;
+          opacity: 0.45;
+        }
+        .bp-vignette {
+          background:
+            radial-gradient(
+              ellipse 90% 40% at 50% 0%,
+              rgba(43, 228, 200, 0.05),
+              transparent 60%
+            ),
+            linear-gradient(
+              180deg,
+              var(--void) 0%,
+              var(--void-2) 55%,
+              var(--void) 100%
+            );
+        }
+        .intro {
+          padding-top: 120px;
+          padding-right: 0;
+        }
+        .stats {
+          gap: 24px;
+        }
+        .grid-2 {
+          grid-template-columns: 1fr;
+        }
+      }
+      /* ---------- navbar ---------- */
+      .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 48px;
+        background: rgba(10, 13, 18, 0.72);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--panel-border);
+      }
+      .brand {
+        font-family: "Rajdhani", sans-serif;
+        font-weight: 700;
+        font-size: 19px;
+        letter-spacing: 0.02em;
+        color: var(--paper);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .brand-mark {
+        color: var(--teal);
+        font-size: 14px;
+      }
+      .nav-links {
+        display: flex;
+        gap: 6px;
+      }
+      .nav-link {
+        background: none;
+        border: 1px solid transparent;
+        color: var(--steel);
+        font-family: "Inter", sans-serif;
+        font-size: 13.5px;
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: 999px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .nav-link:hover {
+        color: var(--paper);
+      }
+      .nav-link.active {
+        color: var(--void);
+        background: var(--teal);
+      }
+
+      /* ---------- view switching ---------- */
+      .view {
+        display: none;
+        position: relative;
+        z-index: 1;
+        overflow: hidden;
+      }
+      .view.active {
+        display: block;
+      }
+      .view-inner {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 56px 48px;
+      }
+      .view-title {
+        font-family: "Rajdhani", sans-serif;
+        font-weight: 700;
+        font-size: 38px;
+        margin-bottom: 8px;
+      }
+      .view-sub {
+        color: var(--steel);
+        font-size: 14.5px;
+        margin-bottom: 32px;
+      }
+
+      /* dashboard */
+      .dash-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+        margin-bottom: 24px;
+      }
+      .dash-card {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: 14px;
+        padding: 22px 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .dash-label {
+        font-size: 11.5px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--steel);
+      }
+      .dash-value {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 26px;
+        color: var(--teal);
+      }
+
+      .empty-note {
+        display: none;
+        color: var(--steel-dim);
+        font-size: 13.5px;
+        border: 1px dashed var(--panel-border);
+        border-radius: 12px;
+        padding: 26px;
+        text-align: center;
+      }
+      .empty-note.show {
+        display: block;
+      }
+
+      /* cars list */
+      .cars-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .car-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: 12px;
+        padding: 14px 18px;
+      }
+      .car-item .ci-main {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+      }
+      .car-item .ci-name {
+        font-family: "Rajdhani", sans-serif;
+        font-weight: 600;
+        font-size: 16px;
+      }
+      .car-item .ci-sub {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        color: var(--steel);
+      }
+      .car-item .ci-price {
+        font-family: "JetBrains Mono", monospace;
+        color: var(--teal);
+        font-size: 16px;
+      }
+
+      /* history table */
+      .history-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13.5px;
+      }
+      .history-table th {
+        text-align: left;
+        font-family: "Inter", sans-serif;
+        font-weight: 500;
+        font-size: 11.5px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--steel);
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--panel-border);
+      }
+      .history-table td {
+        padding: 12px 14px;
+        font-family: "JetBrains Mono", monospace;
+        border-bottom: 1px solid var(--panel-border);
+        color: var(--paper);
+      }
+      .history-table tr:last-child td {
+        border-bottom: none;
+      }
+      .history-table .id-cell,
+      .history-table .date-cell {
+        color: var(--steel);
+        font-size: 12px;
+      }
+      .del-btn {
+        background: none;
+        border: 1px solid var(--panel-border);
+        color: #ff9d9d;
+        border-radius: 8px;
+        padding: 5px 9px;
+        font-size: 12px;
+        cursor: pointer;
+        font-family: "Inter", sans-serif;
+        transition: all 0.15s ease;
+      }
+      .del-btn:hover {
+        border-color: #ff5a5a;
+        background: rgba(255, 90, 90, 0.08);
+      }
+
+      /* search + filters toolbar */
+      .hist-toolbar {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+      .search-box {
+        flex: 1;
+        min-width: 220px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: 10px;
+        padding: 10px 14px;
+      }
+      .search-box input {
+        flex: 1;
+        background: none;
+        border: none;
+        outline: none;
+        color: var(--paper);
+        font-family: "Inter", sans-serif;
+        font-size: 13.5px;
+      }
+      .search-icon {
+        font-size: 13px;
+        opacity: 0.7;
+      }
+      .hist-toolbar select {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: 10px;
+        padding: 10px 14px;
+        color: var(--paper);
+        font-family: "Inter", sans-serif;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .hist-toolbar select option {
+        background: #12161d;
+        color: var(--paper);
+      }
+      .export-btn {
+        background: var(--teal-dim);
+        border: 1px solid var(--teal);
+        color: var(--teal);
+        border-radius: 10px;
+        padding: 10px 16px;
+        font-family: "Inter", sans-serif;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        white-space: nowrap;
+      }
+
+      .export-btn:hover {
+        background: var(--teal);
+        color: var(--void);
+        transform: translateY(-1px);
+      }
+
+      /* pagination */
+      .pagination {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+      .page-btn {
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        color: var(--steel);
+        border-radius: 8px;
+        padding: 7px 12px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12.5px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .page-btn:hover {
+        color: var(--paper);
+        border-color: var(--steel);
+      }
+      .page-btn.active {
+        background: var(--teal);
+        color: var(--void);
+        border-color: var(--teal);
+      }
+      .page-btn:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+
+      /* chart */
+      .chart-card {
+        margin-top: 8px;
+        background: var(--panel);
+        border: 1px solid var(--panel-border);
+        border-radius: 14px;
+        padding: 22px 24px;
+      }
+      .chart-title {
+        font-family: "Rajdhani", sans-serif;
+        font-weight: 600;
+        font-size: 16px;
+        margin-bottom: 16px;
+        color: var(--steel);
+      }
+      #priceChart {
+        width: 100%;
+        height: 220px;
+        display: block;
+      }
+      .chart-bar {
+        fill: var(--teal);
+        opacity: 0.85;
+      }
+      .chart-bar:hover {
+        opacity: 1;
+      }
+      .chart-axis {
+        stroke: var(--panel-border);
+        stroke-width: 1;
+      }
+      .chart-label {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 9px;
+        fill: var(--steel);
+      }
+
+      @media (max-width: 920px) {
+        .navbar {
+          padding: 14px 20px;
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+        .nav-links {
+          gap: 2px;
+        }
+        .nav-link {
+          padding: 7px 11px;
+          font-size: 12.5px;
+        }
+        .view-inner {
+          padding: 36px 20px;
+        }
+        .dash-grid {
+          grid-template-columns: 1fr;
+        }
+        .history-table {
+          display: block;
+          overflow-x: auto;
+          white-space: nowrap;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bp-vignette"></div>
+    <div class="bp-grid"></div>
+
+    <nav class="navbar">
+      <div class="brand"><span class="brand-mark">◆</span> AutoValue</div>
+      <div class="nav-links">
+        <button class="nav-link" data-view="dashboard">Dashboard</button>
+        <button class="nav-link" data-view="cars">Cars</button>
+        <button class="nav-link active" data-view="predict">Predict</button>
+        <button class="nav-link" data-view="history">History</button>
+      </div>
+    </nav>
+
+    <section id="view-dashboard" class="view">
+      <div class="view-inner">
+        <h2 class="view-title">Dashboard</h2>
+        <p class="view-sub">
+          A quick look at this session's prediction activity.
+        </p>
+        <div class="dash-grid">
+          <div class="dash-card">
+            <span class="dash-label">Predictions run</span>
+            <span class="dash-value" id="dashCount">0</span>
+          </div>
+          <div class="dash-card">
+            <span class="dash-label">Average estimate</span>
+            <span class="dash-value" id="dashAvg">₹0</span>
+          </div>
+          <div class="dash-card">
+            <span class="dash-label">Highest estimate</span>
+            <span class="dash-value" id="dashMax">₹0</span>
+          </div>
+          <div class="dash-card">
+            <span class="dash-label">Lowest estimate</span>
+            <span class="dash-value" id="dashMin">₹0</span>
+          </div>
+          <div class="dash-card">
+            <span class="dash-label">Top company</span>
+            <span class="dash-value" id="dashTopCompany">—</span>
+          </div>
+          <div class="dash-card">
+            <span class="dash-label">Last prediction</span>
+            <span class="dash-value" id="dashLast">—</span>
+          </div>
+        </div>
+        <div class="empty-note" id="dashEmpty">
+          No predictions yet this session — run one from the Predict tab and
+          it'll show up here.
+        </div>
+
+        <div class="chart-card" id="chartCard">
+          <h3 class="chart-title">Price Value by year</h3>
+          <svg
+            id="priceChart"
+            viewBox="0 0 760 220"
+            preserveAspectRatio="none"
+          ></svg>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-cars" class="view">
+      <div class="view-inner">
+        <h2 class="view-title">Cars</h2>
+        <p class="view-sub">Every car you've priced this session.</p>
+        <div class="cars-list" id="carsList"></div>
+        <div class="empty-note" id="carsEmpty">
+          Nothing here yet — cars you price will be listed once you run a
+          prediction.
+        </div>
+      </div>
+    </section>
+
+    <section id="view-history" class="view">
+      <div class="view-inner">
+        <h2 class="view-title">History</h2>
+        <p class="view-sub">
+          Full log of predictions made this session, most recent first.
+        </p>
+
+        <div class="hist-toolbar">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input
+              type="text"
+              id="historySearch"
+              placeholder="Search by car or company…"
+            />
+          </div>
+          <select id="filterCompany">
+            <option value="">All companies</option>
+          </select>
+
+          <select id="filterFuel">
+            <option value="">All fuel types</option>
+            <option value="Petrol">Petrol</option>
+            <option value="Diesel">Diesel</option>
+            <option value="Electric">Electric</option>
+            <option value="Hybrid">Hybrid</option>
+            <option value="CNG">CNG</option>
+          </select>
+
+          <select id="filterOwner">
+            <option value="">All owners</option>
+            <option value="First Owner">First Owner</option>
+            <option value="Second Owner">Second Owner</option>
+            <option value="Third Owner">Third Owner</option>
+            <option value="Fourth Owner">Fourth Owner</option>
+          </select>
+          <button class="export-btn" id="exportCsvBtn">↓ Export CSV</button>
+        </div>
+
+        <table class="history-table" id="historyTable">
+          <thead>
+            <tr>
+              <th>🆔 ID</th>
+              <th>🕐 Date / time</th>
+              <th>Car</th>
+              <th>Company</th>
+              <th>Year</th>
+              <th>Kms</th>
+              <th>Fuel</th>
+              <th>Owner Type</th>
+              <th>Predicted</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="historyBody"></tbody>
+        </table>
+        <div class="empty-note" id="historyEmpty">
+          No predictions logged yet.
+        </div>
+
+        <div class="pagination" id="historyPagination"></div>
+      </div>
+    </section>
+
+    <section id="view-predict" class="view active">
+      <div class="car-wrap">
+        <svg viewBox="0 0 900 340" xmlns="http://www.w3.org/2000/svg">
+          <!-- dimension lines -->
+          <line class="dim-line" x1="60" y1="60" x2="820" y2="60"></line>
+          <line class="dim-tick" x1="60" y1="54" x2="60" y2="66"></line>
+          <line class="dim-tick" x1="820" y1="54" x2="820" y2="66"></line>
+          <text class="dim-label" x="400" y="46">L — 4,520 MM</text>
+
+          <line class="dim-line" x1="30" y1="80" x2="30" y2="290"></line>
+          <line class="dim-tick" x1="24" y1="80" x2="36" y2="80"></line>
+          <line class="dim-tick" x1="24" y1="290" x2="36" y2="290"></line>
+          <text
+            class="dim-label"
+            x="-210"
+            y="20"
+            transform="rotate(-90)"
+          ></text>
+
+          <!-- body -->
+          <path
+            class="car-fill"
+            d="M95,235
+      C95,235 110,175 165,155
+      C205,140 250,132 300,130
+      C330,110 365,88 410,80
+      C460,70 520,72 565,90
+      C605,105 630,125 655,150
+      C695,150 740,158 775,180
+      C800,196 812,210 812,225
+      L812,238
+      L95,238 Z"
+          ></path>
+
+          <path
+            class="car-line"
+            d="M95,235
+      C95,235 110,175 165,155
+      C205,140 250,132 300,130
+      C330,110 365,88 410,80
+      C460,70 520,72 565,90
+      C605,105 630,125 655,150
+      C695,150 740,158 775,180
+      C800,196 812,210 812,225
+      L812,238
+      L95,238 Z"
+          ></path>
+
+          <!-- windows -->
+          <path
+            class="car-line"
+            d="M310,128
+      C338,104 372,86 408,80
+      C450,73 505,75 548,90
+      C568,97 585,108 598,122
+      L588,140
+      L330,140 Z"
+          ></path>
+          <line class="car-line" x1="452" y1="82" x2="452" y2="140"></line>
+
+          <!-- door + handle -->
+          <path
+            class="car-line"
+            d="M330,140 L330,232"
+            stroke-dasharray="2 5"
+          ></path>
+          <line class="car-line" x1="368" y1="168" x2="392" y2="168"></line>
+
+          <!-- headlight / taillight -->
+          <path
+            class="car-line"
+            d="M792,196 C806,198 812,208 812,218 L788,218 Z"
+          ></path>
+          <path
+            class="car-line"
+            d="M100,222 C100,210 108,200 122,197 L128,214 L110,222 Z"
+          ></path>
+
+          <!-- wheels -->
+          <g class="wheel-spin" style="transform-box: fill-box">
+            <circle class="car-line" cx="222" cy="238" r="46"></circle>
+            <circle
+              class="car-line"
+              cx="222"
+              cy="238"
+              r="19"
+              opacity="0.5"
+            ></circle>
+            <line
+              class="car-line"
+              x1="222"
+              y1="238"
+              x2="222"
+              y2="200"
+              opacity="0.4"
+            ></line>
+            <line
+              class="car-line"
+              x1="222"
+              y1="238"
+              x2="253"
+              y2="257"
+              opacity="0.4"
+            ></line>
+            <line
+              class="car-line"
+              x1="222"
+              y1="238"
+              x2="191"
+              y2="257"
+              opacity="0.4"
+            ></line>
+          </g>
+          <g class="wheel-spin" style="transform-box: fill-box">
+            <circle class="car-line" cx="672" cy="238" r="46"></circle>
+            <circle
+              class="car-line"
+              cx="672"
+              cy="238"
+              r="19"
+              opacity="0.5"
+            ></circle>
+            <line
+              class="car-line"
+              x1="672"
+              y1="238"
+              x2="672"
+              y2="200"
+              opacity="0.4"
+            ></line>
+            <line
+              class="car-line"
+              x1="672"
+              y1="238"
+              x2="703"
+              y2="257"
+              opacity="0.4"
+            ></line>
+            <line
+              class="car-line"
+              x1="672"
+              y1="238"
+              x2="641"
+              y2="257"
+              opacity="0.4"
+            ></line>
+          </g>
+
+          <!-- ground shadow -->
+          <ellipse
+            cx="450"
+            cy="292"
+            rx="420"
+            ry="8"
+            fill="rgba(43,228,200,0.06)"
+          ></ellipse>
+        </svg>
+      </div>
+
+      <div class="stage">
+        <div class="intro">
+          <div class="eyebrow">Price Predictor · ML Model</div>
+          <h1>What's your<br />car <span>worth?</span></h1>
+          <p class="lede">
+            Enter your car's details and the model estimates a fair market price
+            based on make, age, mileage, and fuel type.
+          </p>
+          <div class="stats">
+            <div class="stat"><b>&lt;1 SEC</b><span>Inference time</span></div>
+            <div class="stat"><b>5</b><span>Input features</span></div>
+            <div class="stat"><b>ML</b><span>Powered estimate</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>Vehicle Details</h2>
+            <span class="ticket" id="ticketNo">SHEET NO. 0417</span>
+          </div>
+
+          <form id="carForm" class="form-body">
+            <div class="field">
+              <label for="name">Car name</label>
+              <div class="input-row">
+                <div class="car-search-wrapper">
+                  <input
+                    type="text"
+                    id="name"
+                    placeholder="Search car name..."
+                    autocomplete="off"
+                    required
+                  />
+
+                  <div id="carSuggestions" class="car-suggestions"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="company">Make / Company</label>
+              <div class="input-row">
+                <select id="company" required>
+                  <option value="" disabled selected>Select company</option>
+                </select>
+                <span class="caret">▾</span>
+              </div>
+            </div>
+
+            <div class="grid-2">
+              <div class="field">
+                <label for="year">Manufacturing Year</label>
+                <div class="input-row">
+                  <select id="year" required>
+                    <option value="" disabled selected>Select year</option>
+                  </select>
+                  <span class="caret">▾</span>
+                </div>
+              </div>
+              <div class="field">
+                <label for="kms">Kms driven</label>
+                <div class="input-row">
+                  <input
+                    type="text"
+                    inputmode="numeric"
+                    id="kms"
+                    placeholder="42,500"
+                    required
+                  />
+                  <span class="suffix">km</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label>Fuel type</label>
+              <div class="fuel-pills" id="fuelPills">
+                <button type="button" class="pill" data-fuel="Petrol">
+                  Petrol
+                </button>
+                <button type="button" class="pill" data-fuel="Diesel">
+                  Diesel
+                </button>
+                <button type="button" class="pill" data-fuel="Electric">
+                  Electric
+                </button>
+                <button type="button" class="pill" data-fuel="Hybrid">
+                  Hybrid
+                </button>
+                <button type="button" class="pill" data-fuel="CNG">CNG</button>
+              </div>
+            </div>
+            <div class="field">
+              <label>Owner</label>
+              <div class="fuel-pills" id="ownerPills">
+                <button type="button" class="pill" data-owner="First Owner">
+                  First Owner
+                </button>
+
+                <button type="button" class="pill" data-owner="Second Owner">
+                  Second Owner
+                </button>
+
+                <button type="button" class="pill" data-owner="Third Owner">
+                  Third Owner
+                </button>
+
+                <button type="button" class="pill" data-owner="Fourth Owner">
+                  Fourth Owner
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+              Predict price →
+            </button>
+            <p class="hint" id="hintText">
+              Runs your saved model via the FastAPI endpoint below.
+            </p>
+          </form>
+
+          <div class="confirm" id="confirm">
+            <div class="check">✓</div>
+            <h3>Estimated price</h3>
+            <p class="sub">
+              Based on the spec sheet for <span id="rName"></span>.
+            </p>
+            <div class="predicted-price" id="predictedPrice">₹0</div>
+
+            <div class="condition-block">
+              <div class="condition-header">
+                <span class="condition-title">Fine-tune for condition</span>
+                <span class="condition-note" id="conditionLabel">Good</span>
+              </div>
+              <div class="condition-slider-wrap">
+                <div class="condition-tooltip" id="conditionTooltip">
+                  <span id="conditionPrice">₹0</span>
+                </div>
+                <input
+                  type="range"
+                  id="conditionSlider"
+                  min="0"
+                  max="100"
+                  value="66"
+                  step="1"
+                />
+                <div class="condition-labels">
+                  <span>Poor</span><span>Fair</span><span>Good</span
+                  ><span>Excellent</span>
+                </div>
+              </div>
+              <p class="base-estimate-note" id="baseEstimateNote"></p>
+            </div>
+
+            <div class="recap">
+              <div class="recap-row">
+                <span>Model</span><span id="rNameOut"></span>
+              </div>
+              <div class="recap-row">
+                <span>Make</span><span id="rCompany"></span>
+              </div>
+              <div class="recap-row">
+                <span>Year</span><span id="rYear"></span>
+              </div>
+              <div class="recap-row">
+                <span>Kms driven</span><span id="rKms"></span>
+              </div>
+              <div class="recap-row">
+                <span>Owner</span><span id="rOwner"></span>
+              </div>
+              <div class="recap-row">
+                <span>Fuel</span><span id="rFuel"></span>
+              </div>
+            </div>
+            <button class="again-btn" id="againBtn">Predict another</button>
+          </div>
+
+          <div class="err" id="errBox"></div>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      // ticket number
+      document.getElementById("ticketNo").textContent =
+        "SHEET NO. " + String(Math.floor(1000 + Math.random() * 8999));
+
+      // focus glow
+      document.querySelectorAll(".field").forEach((f) => {
+        const el = f.querySelector("input, select");
+        if (!el) return;
+        el.addEventListener("focus", () => f.classList.add("focus"));
+        el.addEventListener("blur", () => f.classList.remove("focus"));
+      });
+      //
+
+      // indian-style comma formatting
+      function formatIndian(numStr) {
+        numStr = numStr.replace(/[^0-9]/g, "");
+        if (!numStr) return "";
+        let last3 = numStr.slice(-3);
+        let rest = numStr.slice(0, -3);
+        if (rest !== "") last3 = "," + last3;
+        rest = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ",");
+        return rest + last3;
+      }
+      ["kms"].forEach((id) => {
+        const el = document.getElementById(id);
+        el.addEventListener("input", (e) => {
+          const raw = e.target.value.replace(/[^0-9]/g, "");
+          e.target.value = formatIndian(raw);
+        });
+      });
+      // populate year dropdown (current year down to 1990)
+      (function populateYears() {
+        const sel = document.getElementById("year");
+        const currentYear = new Date().getFullYear();
+        for (let y = currentYear; y >= 1990; y--) {
+          const opt = document.createElement("option");
+          opt.value = y;
+          opt.textContent = y;
+          sel.appendChild(opt);
+        }
+      })();
+
+      // populate company dropdown — edit this list to match what your model was trained on
+      (function populateCompanies() {
+        const companyList = [
+          "Maruti",
+          "Hyundai",
+          "Mahindra",
+          "Tata",
+          "Honda",
+          "Toyota",
+          "Ford",
+          "Renault",
+          "Mini",
+          "Mitsubishi",
+          "Force",
+          "Hindustan",
+          "Jaguar",
+          "Land Rover",
+          "Volkswagen",
+          "Skoda",
+          "Nissan",
+          "Jeep",
+          "BMW",
+          "Mercedes",
+          "Audi",
+          "Volvo",
+          "Chevrolet",
+          "Fiat",
+          "Datsun",
+          "Other",
+        ];
+        const sel = document.getElementById("company");
+        companyList.forEach((c) => {
+          const opt = document.createElement("option");
+          opt.value = c;
+          opt.textContent = c;
+          sel.appendChild(opt);
+        });
+      })();
+
+      // select fuel pills
+      let selectedFuel = "";
+      document.querySelectorAll("#fuelPills .pill").forEach((p) => {
+        p.addEventListener("click", () => {
+          document
+            .querySelectorAll("#fuelPills .pill")
+            .forEach((x) => x.classList.remove("active"));
+          p.classList.add("active");
+          selectedFuel = p.dataset.fuel;
+        });
+      });
+
+      // select owner pills
+
+      let selectedOwner = "";
+      document.querySelectorAll("#ownerPills .pill").forEach((button) => {
+        button.addEventListener("click", () => {
+          document
+            .querySelectorAll("#ownerPills .pill")
+            .forEach((btn) => btn.classList.remove("active"));
+
+          button.classList.add("active");
+
+          selectedOwner = button.dataset.owner;
+
+          console.log("Selected owner:", selectedOwner);
+        });
+      });
+      //let selectedOwner = "";
+
+      // ---------------------------------------------------------------
+      // Point these at your FastAPI server. Update API_BASE to match
+      // wherever you run `uvicorn`.
+      // ---------------------------------------------------------------
+      const API_BASE = "http://127.0.0.1:8000";
+      const API_URL = API_BASE + "/predict";
+      const OPTIONS_URL = API_BASE + "/options";
+      const HISTORY_URL = API_BASE + "/predictions";
+      const DELETE_URL = (id) => API_BASE + "/predictions/" + id;
+
+      // POST API_URL — request body:
+      //   { "name": string, "company": string, "year": number,
+      //     "kms_driven": number, "fuel_type": string }
+      // response body:
+      //   { "predicted_price": number }
+      //
+      // GET HISTORY_URL — response body:
+      //   { "predictions": [
+      //       { "id": string|number, "timestamp": string (ISO 8601),
+      //         "name": string, "company": string, "year": number,
+      //         "kms_driven": number, "fuel_type": string,
+      //         "predicted_price": number }, ...
+      //   ] }
+      // (Backend keeps this in memory — restarting the server clears it.)
+      //
+      // DELETE DELETE_URL(id) — deletes one prediction by id, e.g.
+      //   DELETE /predictions/17   →  200/204 on success
+
+      let carModels = [];
+      let companies = [];
+
+      async function loadCarOptions() {
+        try {
+          const response = await fetch(OPTIONS_URL);
+
+          if (!response.ok) {
+            throw new Error("Failed to load car options");
+          }
+
+          const data = await response.json();
+
+          carModels = data.car_models || [];
+          companies = data.companies || [];
+
+          console.log("Car models loaded:", carModels.length);
+          console.log("Companies loaded:", companies.length);
+        } catch (error) {
+          console.error("Could not load car options:", error);
+        }
+      }
+
+      const carInput = document.getElementById("name");
+      const companyInput = document.getElementById("company");
+      const suggestionsBox = document.getElementById("carSuggestions");
+
+      carInput.addEventListener("input", function () {
+        const searchText = this.value.trim().toLowerCase();
+
+        suggestionsBox.innerHTML = "";
+
+        if (!searchText) {
+          suggestionsBox.style.display = "none";
+
+          // Clear company if car is cleared
+          companyInput.value = "";
+
+          return;
+        }
+
+        const matches = carModels
+          .filter((car) => car.toLowerCase().includes(searchText))
+          .slice(0, 10);
+
+        if (matches.length === 0) {
+          const noResults = document.createElement("div");
+
+          noResults.className = "no-car-results";
+          noResults.textContent = "No matching car found";
+
+          suggestionsBox.appendChild(noResults);
+          suggestionsBox.style.display = "block";
+
+          return;
+        }
+
+        matches.forEach((car) => {
+          const item = document.createElement("div");
+
+          item.className = "car-suggestion";
+          item.textContent = car;
+
+          item.addEventListener("click", function () {
+            // Set selected car
+            carInput.value = car;
+
+            // --------------------------------
+            // AUTOMATIC COMPANY SELECTION
+            // --------------------------------
+
+            const matchedCompany = companies.find((company) => {
+              const carLower = car.toLowerCase();
+              const companyLower = company.toLowerCase();
+
+              return (
+                carLower === companyLower ||
+                carLower.startsWith(companyLower + " ")
+              );
+            });
+
+            if (matchedCompany) {
+              companyInput.value = matchedCompany;
+
+              console.log("Company automatically selected:", matchedCompany);
+            } else {
+              companyInput.value = "";
+
+              console.warn("Could not determine company for:", car);
+            }
+
+            // Hide suggestions
+            suggestionsBox.innerHTML = "";
+            suggestionsBox.style.display = "none";
+          });
+
+          suggestionsBox.appendChild(item);
+        });
+
+        suggestionsBox.style.display = "block";
+      });
+
+      // Close suggestions when clicking outside
+      document.addEventListener("click", function (event) {
+        if (!event.target.closest(".car-search-wrapper")) {
+          suggestionsBox.style.display = "none";
+        }
+      });
+
+      // Load data from FastAPI
+      loadCarOptions();
+
+      function countUpPrice(el, target) {
+        const duration = 700;
+        const start = performance.now();
+        function tick(now) {
+          const p = Math.min(1, (now - start) / duration);
+          const eased = 1 - Math.pow(1 - p, 3);
+          const val = Math.round(target * eased);
+          el.textContent = "₹" + formatIndian(String(val));
+          if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      }
+
+      function showError(msg) {
+        const box = document.getElementById("errBox");
+        box.textContent = msg;
+        box.classList.add("show");
+      }
+      function clearError() {
+        document.getElementById("errBox").classList.remove("show");
+      }
+
+      // ---------------------------------------------------------------
+      // Condition "what-if" slider — adjusts the shown price live as the
+      // user drags, using a client-side multiplier curve. This never
+      // calls the backend again; it's a local estimate layered on top
+      // of the model's original prediction (currentBasePrice), which is
+      // treated as the "Good / average condition" anchor point.
+      // ---------------------------------------------------------------
+      let currentBasePrice = 0;
+
+      const conditionAnchors = [
+        { pos: 0, mult: 0.8, label: "Poor" },
+        { pos: 33, mult: 0.9, label: "Fair" },
+        { pos: 66, mult: 1.0, label: "Good" },
+        { pos: 100, mult: 1.12, label: "Excellent" },
+      ];
+
+      function conditionMultiplier(pos) {
+        for (let i = 0; i < conditionAnchors.length - 1; i++) {
+          const a = conditionAnchors[i],
+            b = conditionAnchors[i + 1];
+          if (pos >= a.pos && pos <= b.pos) {
+            const t = (pos - a.pos) / (b.pos - a.pos);
+            return a.mult + t * (b.mult - a.mult);
+          }
+        }
+        return conditionAnchors[conditionAnchors.length - 1].mult;
+      }
+
+      function conditionLabelFor(pos) {
+        if (pos < 25) return "Poor";
+        if (pos < 50) return "Fair";
+        if (pos < 80) return "Good";
+        return "Excellent";
+      }
+
+      function positionConditionTooltip() {
+        const slider = document.getElementById("conditionSlider");
+        const tooltip = document.getElementById("conditionTooltip");
+        const trackWidth = slider.offsetWidth;
+        if (trackWidth === 0) return; // panel not visible yet
+        const percent = (slider.value - slider.min) / (slider.max - slider.min);
+        const thumbSize = 20;
+        const left = percent * (trackWidth - thumbSize) + thumbSize / 2;
+        tooltip.style.left = left + "px";
+      }
+
+      function updateConditionUI(value) {
+        const pos = Number(value);
+        const mult = conditionMultiplier(pos);
+        const adjusted = currentBasePrice * mult;
+        const label = conditionLabelFor(pos);
+
+        document.getElementById("conditionPrice").textContent =
+          "₹" + formatIndian(String(Math.round(adjusted)));
+        document.getElementById("conditionLabel").textContent = label;
+        document.getElementById("predictedPrice").textContent =
+          "₹" + formatIndian(String(Math.round(adjusted)));
+
+        document.querySelectorAll(".condition-labels span").forEach((el) => {
+          el.classList.toggle("active", el.textContent === label);
+        });
+
+        positionConditionTooltip();
+      }
+
+      document
+        .getElementById("conditionSlider")
+        .addEventListener("input", (e) => {
+          updateConditionUI(e.target.value);
+        });
+      window.addEventListener("resize", () => {
+        if (document.getElementById("confirm").classList.contains("show")) {
+          positionConditionTooltip();
+        }
+      });
+
+      // submit
+      document
+        .getElementById("carForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          clearError();
+
+          const name = document.getElementById("name").value.trim();
+          const company = document.getElementById("company").value.trim();
+          const year = document.getElementById("year").value.trim();
+          const kmsRaw = document.getElementById("kms").value.trim();
+
+          if (
+            !name ||
+            !company ||
+            !year ||
+            !kmsRaw ||
+            !selectedFuel ||
+            !selectedOwner
+          ) {
+            alert(
+              "Please fill in every field, including fuel type, before predicting.",
+            );
+            return;
+          }
+
+          const payload = {
+            name: name,
+            company: company,
+            year: parseInt(year, 10),
+            kms_driven: parseInt(kmsRaw.replace(/,/g, ""), 10),
+            fuel_type: selectedFuel,
+            owner: selectedOwner,
+          };
+
+          console.log("Sending prediction:", payload);
+
+          const btn = document.getElementById("submitBtn");
+          const originalLabel = btn.innerHTML;
+          btn.disabled = true;
+          btn.innerHTML = '<span class="spinner"></span> Predicting…';
+
+          try {
+            const res = await fetch(API_URL, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload),
+            });
+
+            if (!res.ok) {
+              throw new Error("Server responded with status " + res.status);
+            }
+
+            const data = await res.json();
+            const predicted = Number(data.predicted_price);
+            if (Number.isNaN(predicted)) {
+              throw new Error(
+                'Response did not include a valid "predicted_price" number.',
+              );
+            }
+
+            document.getElementById("rName").textContent = name.split(" ")[0];
+            document.getElementById("rNameOut").textContent = name;
+            document.getElementById("rCompany").textContent = company;
+            document.getElementById("rYear").textContent = year;
+            document.getElementById("rKms").textContent = kmsRaw + " km";
+            document.getElementById("rFuel").textContent = selectedFuel;
+            document.getElementById("rOwner").textContent = selectedOwner;
+
+            document.querySelector(".form-body").classList.add("hide");
+            document.getElementById("confirm").classList.add("show");
+            countUpPrice(document.getElementById("predictedPrice"), predicted);
+
+            // Reset the condition "what-if" slider against this new base price
+            currentBasePrice = predicted;
+            const conditionSlider = document.getElementById("conditionSlider");
+            conditionSlider.value = 66; // default: "Good" condition
+            document.getElementById("baseEstimateNote").textContent =
+              "Base model estimate (avg condition): ₹" +
+              formatIndian(String(Math.round(predicted)));
+            requestAnimationFrame(() => updateConditionUI(66));
+
+            syncFromBackend();
+          } catch (err) {
+            showError(
+              "Couldn't reach the prediction API at " +
+                API_URL +
+                ". Make sure your FastAPI server is running and CORS is enabled. (" +
+                err.message +
+                ")",
+            );
+          } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalLabel;
+          }
+        });
+
+      document.getElementById("againBtn").addEventListener("click", () => {
+        document.getElementById("carForm").reset();
+        document
+          .querySelectorAll(".pill")
+          .forEach((x) => x.classList.remove("active"));
+        selectedFuel = "";
+        selectedOwner = "";
+        clearError();
+        document.querySelector(".form-body").classList.remove("hide");
+        document.getElementById("confirm").classList.remove("show");
+        document.getElementById("conditionSlider").value = 66;
+        currentBasePrice = 0;
+      });
+
+      // ---------------------------------------------------------------
+      // Dashboard / Cars / History are all views over the same data,
+      // which lives on your backend (GET HISTORY_URL). The backend
+      // keeps it in memory, so restarting your FastAPI server wipes it
+      // automatically — nothing to clean up manually.
+      // ---------------------------------------------------------------
+      let sessionPredictions = [];
+      let backendUnreachable = false;
+
+      // history view state (STEP 3)
+      let searchTerm = "";
+      let filterCompany = "";
+      let filterFuel = "";
+      let filterOwner = "";
+      let currentPage = 1;
+      const PAGE_SIZE = 8;
+
+      function normalizeRecord(record) {
+        return {
+          id: record.id,
+
+          name: record.name || "Unknown",
+          company: record.company || "Unknown",
+          year: Number(record.year) || 0,
+          kms: Number(record.kms_driven) || 0,
+          fuel: record.fuel_type || "Unknown",
+          owner: record.owner || "Owner not specified",
+          price: Number(record.predicted_price) || 0,
+
+          created_at: record.created_at || "",
+        };
+      }
+
+      function formatTimestamp(ts) {
+        if (!ts) return "—";
+        const d = new Date(ts);
+        if (isNaN(d.getTime())) return "—";
+        return (
+          d.toLocaleDateString(undefined, { day: "2-digit", month: "short" }) +
+          " · " +
+          d.toLocaleTimeString(undefined, {
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        );
+      }
+
+      async function syncFromBackend() {
+        try {
+          const response = await fetch(HISTORY_URL);
+
+          if (!response.ok) {
+            throw new Error("status " + response.status);
+          }
+
+          const data = await response.json();
+          console.log("Backend history:", data);
+
+          sessionPredictions = (data.predictions || []).map(normalizeRecord);
+          console.log("Normalized history:", sessionPredictions);
+
+          backendUnreachable = false;
+        } catch (err) {
+          console.error("History fetch error:", err);
+          backendUnreachable = true;
+        }
+
+        populateFilterOptions();
+        renderDashboard();
+        renderCars();
+        renderHistory();
+      }
+
+      // STEP 2 — delete a prediction from the backend
+      async function deletePrediction(id) {
+        try {
+          console.log("Deleting prediction:", id);
+
+          const response = await fetch(
+            `http://127.0.0.1:8000/predictions/${id}`,
+            {
+              method: "DELETE",
+            },
+          );
+
+          const data = await response.json();
+
+          console.log("Delete response:", data);
+
+          if (!response.ok || !data.success) {
+            throw new Error(data.message || "Failed to delete prediction");
+          }
+
+          // Reload history from FastAPI
+          await syncFromBackend();
+        } catch (error) {
+          console.error("Delete error:", error);
+
+          alert("Could not delete prediction.");
+        }
+      }
+
+      function emptyText(base) {
+        return backendUnreachable
+          ? "Can't reach the backend at " +
+              HISTORY_URL +
+              " — start your FastAPI server to see this."
+          : base;
+      }
+
+      // STEP 4 — dashboard statistics
+      function renderDashboard() {
+        const count = sessionPredictions.length;
+        document.getElementById("dashCount").textContent = count;
+        const empty = document.getElementById("dashEmpty");
+        empty.classList.toggle("show", count === 0);
+        empty.textContent = emptyText(
+          "No predictions yet this session — run one from the Predict tab and it'll show up here.",
+        );
+        document.getElementById("chartCard").style.display =
+          count === 0 ? "none" : "block";
+
+        if (count > 0) {
+          const prices = sessionPredictions.map((p) => p.price);
+          const avg = prices.reduce((s, v) => s + v, 0) / count;
+          document.getElementById("dashAvg").textContent =
+            "₹" + formatIndian(String(Math.round(avg)));
+          document.getElementById("dashMax").textContent =
+            "₹" + formatIndian(String(Math.round(Math.max(...prices))));
+          document.getElementById("dashMin").textContent =
+            "₹" + formatIndian(String(Math.round(Math.min(...prices))));
+          document.getElementById("dashLast").textContent =
+            sessionPredictions[0].name;
+
+          const counts = {};
+          sessionPredictions.forEach((p) => {
+            counts[p.company] = (counts[p.company] || 0) + 1;
+          });
+          const topCompany = Object.keys(counts).sort(
+            (a, b) => counts[b] - counts[a],
+          )[0];
+          document.getElementById("dashTopCompany").textContent =
+            topCompany || "—";
+
+          renderChart(sessionPredictions.slice(0, 12).reverse());
+        } else {
+          document.getElementById("dashAvg").textContent = "₹0";
+          document.getElementById("dashMax").textContent = "₹0";
+          document.getElementById("dashMin").textContent = "₹0";
+          document.getElementById("dashTopCompany").textContent = "—";
+          document.getElementById("dashLast").textContent = "—";
+        }
+      }
+
+      // STEP 4 — price chart (hand-drawn SVG bar chart, no external library)
+      function renderChart(points) {
+        const svg = document.getElementById("priceChart");
+        svg.innerHTML = "";
+        if (points.length === 0) return;
+
+        const W = 760,
+          H = 220,
+          padL = 10,
+          padR = 10,
+          padB = 26,
+          padT = 10;
+        const plotW = W - padL - padR;
+        const plotH = H - padT - padB;
+        const maxPrice = Math.max(...points.map((p) => p.price)) * 1.1 || 1;
+        const barGap = 10;
+        const barW = Math.max(
+          6,
+          (plotW - barGap * (points.length - 1)) / points.length,
+        );
+
+        const ns = "http://www.w3.org/2000/svg";
+        const axis = document.createElementNS(ns, "line");
+        axis.setAttribute("x1", padL);
+        axis.setAttribute("x2", W - padR);
+        axis.setAttribute("y1", H - padB);
+        axis.setAttribute("y2", H - padB);
+        axis.setAttribute("class", "chart-axis");
+        svg.appendChild(axis);
+
+        points.forEach((p, i) => {
+          const barH = (p.price / maxPrice) * plotH;
+          const x = padL + i * (barW + barGap);
+          const y = H - padB - barH;
+
+          const rect = document.createElementNS(ns, "rect");
+          rect.setAttribute("x", x);
+          rect.setAttribute("y", y);
+          rect.setAttribute("width", barW);
+          rect.setAttribute("height", Math.max(2, barH));
+          rect.setAttribute("rx", 3);
+          rect.setAttribute("class", "chart-bar");
+          const titleEl = document.createElementNS(ns, "title");
+          titleEl.textContent =
+            p.name + " — ₹" + formatIndian(String(Math.round(p.price)));
+          rect.appendChild(titleEl);
+          svg.appendChild(rect);
+
+          const label = document.createElementNS(ns, "text");
+          label.setAttribute("x", x + barW / 2);
+          label.setAttribute("y", H - 8);
+          label.setAttribute("text-anchor", "middle");
+          label.setAttribute("class", "chart-label");
+          label.textContent = String(p.year);
+          svg.appendChild(label);
+        });
+      }
+
+      function renderCars() {
+        const list = document.getElementById("carsList");
+        list.innerHTML = "";
+
+        const empty = document.getElementById("carsEmpty");
+
+        const filtered = getFilteredPredictions();
+
+        empty.classList.toggle("show", filtered.length === 0);
+
+        empty.textContent = emptyText(
+          filtered.length === 0
+            ? "No cars match your search or filters."
+            : "Nothing here yet — cars you price will be listed once you run a prediction.",
+        );
+
+        filtered.forEach((p) => {
+          const row = document.createElement("div");
+          row.className = "car-item";
+
+          row.innerHTML = `
+      <div class="ci-main">
+        <span class="ci-name">${p.name}</span>
+        <span class="ci-sub">
+          ${p.company} · ${p.year} · ${p.kms} km · ${p.fuel} · ${p.owner || "Owner not specified"}
+        </span>
+      </div>
+
+      <span class="ci-price">
+        ₹${formatIndian(String(Math.round(p.price)))}
+      </span>
+    `;
+
+          list.appendChild(row);
+        });
+      }
+
+      // STEP 3 — populate the company filter dropdown from what's in history
+      function populateFilterOptions() {
+        const companySel = document.getElementById("filterCompany");
+        const current = companySel.value;
+        const companyNames = [
+          ...new Set(sessionPredictions.map((p) => p.company)),
+        ].sort();
+        companySel.innerHTML =
+          '<option value="">All companies</option>' +
+          companyNames
+            .map((c) => `<option value="${c}">${c}</option>`)
+            .join("");
+        companySel.value = companyNames.includes(current) ? current : "";
+      }
+
+      // STEP 3 — search + filters
+      function getFilteredPredictions() {
+        return sessionPredictions.filter((p) => {
+          const matchesSearch =
+            !searchTerm ||
+            p.name.toLowerCase().includes(searchTerm) ||
+            p.company.toLowerCase().includes(searchTerm);
+          const matchesCompany = !filterCompany || p.company === filterCompany;
+
+          const matchesFuel = !filterFuel || p.fuel === filterFuel;
+
+          const matchesOwner = !filterOwner || p.owner === filterOwner;
+
+          return matchesSearch && matchesCompany && matchesFuel && matchesOwner;
+        });
+      }
+
+      // STEP 2 + STEP 3 — history table with id/date/delete + pagination
+      function renderHistory() {
+        const body = document.getElementById("historyBody");
+        body.innerHTML = "";
+
+        const empty = document.getElementById("historyEmpty");
+
+        const filtered = getFilteredPredictions();
+
+        empty.classList.toggle("show", filtered.length === 0);
+
+        empty.textContent = emptyText(
+          filtered.length === 0
+            ? "No cars match your search or filters."
+            : "No predictions logged yet.",
+        );
+
+        filtered.forEach((p) => {
+          const tr = document.createElement("tr");
+
+          tr.innerHTML = `
+      <td>${p.id ?? "—"}</td>
+      <td>${p.created_at || "—"}</td>
+      <td>${p.name}</td>
+      <td>${p.company}</td>
+      <td>${p.year}</td>
+      <td>${p.kms}</td>
+      <td>${p.fuel}</td>
+      <td>${p.owner}</td>
+      <td>₹${formatIndian(String(Math.round(p.price)))}</td>
+
+      <td>
+        <button
+          class="del-btn"
+          data-id="${p.id}"
+          title="Delete"
+          aria-label="Delete prediction"
+        >
+          🗑️
+        </button>
+      </td>
+    `;
+
+          body.appendChild(tr);
+        });
+      }
+      document
+        .getElementById("historyBody")
+        .addEventListener("click", (event) => {
+          const button = event.target.closest(".del-btn");
+
+          if (!button) return;
+
+          const id = button.dataset.id;
+
+          console.log("Delete clicked. ID:", id);
+
+          if (id === undefined || id === "") {
+            console.error("Prediction ID is missing");
+            return;
+          }
+
+          const confirmed = confirm(
+            "Are you sure you want to delete this prediction?",
+          );
+
+          if (!confirmed) {
+            console.log("Delete cancelled");
+            return;
+          }
+
+          deletePrediction(id);
+        });
+      // STEP 3 — pagination controls
+      function renderPagination(totalPages) {
+        const el = document.getElementById("historyPagination");
+        el.innerHTML = "";
+        if (getFilteredPredictions().length === 0) return;
+
+        const prev = document.createElement("button");
+        prev.className = "page-btn";
+        prev.textContent = "← Prev";
+        prev.disabled = currentPage === 1;
+        prev.addEventListener("click", () => {
+          currentPage--;
+          renderHistory();
+        });
+        el.appendChild(prev);
+
+        for (let i = 1; i <= totalPages; i++) {
+          const btn = document.createElement("button");
+          btn.className = "page-btn" + (i === currentPage ? " active" : "");
+          btn.textContent = i;
+          btn.addEventListener("click", () => {
+            currentPage = i;
+            renderHistory();
+          });
+          el.appendChild(btn);
+        }
+
+        const next = document.createElement("button");
+        next.className = "page-btn";
+        next.textContent = "Next →";
+        next.disabled = currentPage === totalPages;
+        next.addEventListener("click", () => {
+          currentPage++;
+          renderHistory();
+        });
+        el.appendChild(next);
+      }
+
+      document
+        .getElementById("historySearch")
+        .addEventListener("input", (e) => {
+          searchTerm = e.target.value.trim().toLowerCase();
+          currentPage = 1;
+          renderHistory();
+        });
+      document
+        .getElementById("filterCompany")
+        .addEventListener("change", (e) => {
+          filterCompany = e.target.value;
+          currentPage = 1;
+          renderHistory();
+        });
+      document.getElementById("filterFuel").addEventListener("change", (e) => {
+        filterFuel = e.target.value;
+        currentPage = 1;
+        renderHistory();
+      });
+      document.getElementById("filterOwner").addEventListener("change", (e) => {
+        filterOwner = e.target.value;
+        currentPage = 1;
+        renderHistory();
+      });
+
+      syncFromBackend();
+
+      // ---------------------------------------------------------------
+      // Nav switching between Dashboard / Cars / Predict / History
+      // ---------------------------------------------------------------
+      document.querySelectorAll(".nav-link").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document
+            .querySelectorAll(".nav-link")
+            .forEach((b) => b.classList.remove("active"));
+          document
+            .querySelectorAll(".view")
+            .forEach((v) => v.classList.remove("active"));
+          btn.classList.add("active");
+          document
+            .getElementById("view-" + btn.dataset.view)
+            .classList.add("active");
+        });
+      });
+      // ---------------------------------------------------------------
+      // Export History to CSV
+      // ---------------------------------------------------------------
+      document.getElementById("exportCsvBtn").addEventListener("click", () => {
+        const data = getFilteredPredictions();
+
+        if (data.length === 0) {
+          alert("There are no predictions to export.");
+          return;
+        }
+
+        const headers = [
+          "ID",
+          "Date / Time",
+          "Car",
+          "Company",
+          "Year",
+          "Kms",
+          "Fuel",
+          "Owner Type",
+          "Predicted Price",
+        ];
+
+        const rows = data.map((p) => [
+          p.id,
+          formatTimestamp(p.created_at),
+          p.name,
+          p.company,
+          p.year,
+          p.kms,
+          p.fuel,
+          p.owner,
+          Math.round(p.price),
+        ]);
+
+        const csv = [headers, ...rows]
+          .map((row) =>
+            row
+              .map((value) => `"${String(value).replace(/"/g, '""')}"`)
+              .join(","),
+          )
+          .join("\n");
+
+        const blob = new Blob([csv], {
+          type: "text/csv;charset=utf-8;",
+        });
+
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "autovalue-history.csv";
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(url);
+      });
+    </script>
+  </body>
+</html>
