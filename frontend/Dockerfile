@@ -1,6 +1,8 @@
 FROM nginx:alpine
 
-COPY car-intake.html /usr/share/nginx/html/index.html
+COPY frontpage.html /usr/share/nginx/html/index.html
+COPY car-intake.html /usr/share/nginx/html/car-intake.html
+COPY about.html /usr/share/nginx/html/about.html
 
 EXPOSE 80
 

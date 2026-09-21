@@ -170,7 +170,7 @@ def delete_prediction(prediction_id: str):
         return {
             "success": False,
             "message": "Prediction not found",
-        }
+        }   
 
     return {
         "success": True,

@@ -728,6 +728,7 @@
         backdrop-filter: blur(14px);
         -webkit-backdrop-filter: blur(14px);
         border-bottom: 1px solid var(--panel-border);
+        gap: 12px;
       }
       .brand {
         font-family: "Rajdhani", sans-serif;
@@ -738,6 +739,8 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        margin-left: 6px;
+        transform: translateX(2px);
       }
       .brand-mark {
         color: var(--teal);
@@ -793,7 +796,32 @@
         font-size: 14.5px;
         margin-bottom: 32px;
       }
+      .home-nav-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
 
+        height: 34px;
+        padding: 0 14px;
+
+        border: 1px solid rgba(25, 230, 193, 0.25);
+        border-radius: 7px;
+
+        background: rgba(25, 230, 193, 0.06);
+        color: #19e6c1;
+
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 700;
+
+        transition: all 0.2s ease;
+      }
+
+      .home-nav-link:hover {
+        background: rgba(25, 230, 193, 0.12);
+        border-color: rgba(25, 230, 193, 0.45);
+        color: #19e6c1;
+      }
       /* dashboard */
       .dash-grid {
         display: grid;
@@ -1079,6 +1107,42 @@
           white-space: nowrap;
         }
       }
+      /* FORCE HOME BUTTON STYLE */
+      nav.navbar a.home-nav-link {
+        all: unset !important;
+
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+
+        height: 34px !important;
+        padding: 0 14px !important;
+
+        box-sizing: border-box !important;
+
+        border: 1px solid rgba(25, 230, 193, 0.3) !important;
+        border-radius: 7px !important;
+
+        background: rgba(25, 230, 193, 0.06) !important;
+
+        color: #19e6c1 !important;
+
+        font-family: inherit !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+
+        text-decoration: none !important;
+
+        cursor: pointer !important;
+
+        transition: all 0.2s ease !important;
+      }
+
+      nav.navbar a.home-nav-link:hover {
+        background: rgba(25, 230, 193, 0.12) !important;
+        border-color: rgba(25, 230, 193, 0.55) !important;
+        color: #19e6c1 !important;
+      }
     </style>
   </head>
   <body>
@@ -1086,7 +1150,10 @@
     <div class="bp-grid"></div>
 
     <nav class="navbar">
-      <div class="brand"><span class="brand-mark">◆</span> AutoValue</div>
+      <div style="display: flex; align-items: center; gap: 8px; min-width: 0">
+        <a href="/" class="home-nav-link">Home</a>
+        <div class="brand"><span class="brand-mark">◆</span> AutoValue</div>
+      </div>
       <div class="nav-links">
         <button class="nav-link" data-view="dashboard">Dashboard</button>
         <button class="nav-link" data-view="cars">Cars</button>

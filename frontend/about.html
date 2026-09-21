@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>About AutoValue</title>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: Inter, Arial, sans-serif;
+        background:
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(25, 230, 193, 0.08),
+            transparent 30%
+          ),
+          #080b10;
+        color: #f4f6f8;
+        min-height: 100vh;
+      }
+
+      /* NAVBAR */
+
+      .navbar {
+        height: 72px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 7%;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(8, 11, 16, 0.88);
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .logo-mark {
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
+        display: grid;
+        place-items: center;
+        background: rgba(25, 230, 193, 0.1);
+        border: 1px solid rgba(25, 230, 193, 0.25);
+        color: #19e6c1;
+        font-weight: 900;
+      }
+
+      .logo-text {
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+      }
+
+      .logo-text span {
+        color: #19e6c1;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 28px;
+        align-items: center;
+      }
+
+      .nav-links a {
+        color: #8993a2;
+        text-decoration: none;
+        font-size: 13px;
+        transition: 0.2s;
+      }
+
+      .nav-links a:hover {
+        color: #19e6c1;
+      }
+
+      .back-button {
+        padding: 10px 18px;
+        border: 1px solid rgba(25, 230, 193, 0.25);
+        border-radius: 8px;
+        color: #19e6c1 !important;
+        background: rgba(25, 230, 193, 0.05);
+      }
+
+      .back-button:hover {
+        background: rgba(25, 230, 193, 0.1);
+      }
+
+      /* MAIN */
+
+      .container {
+        width: min(1100px, 90%);
+        margin: 0 auto;
+        padding: 70px 0;
+      }
+
+      .header {
+        max-width: 760px;
+        margin-bottom: 55px;
+      }
+
+      .tag {
+        color: #19e6c1;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 3px;
+        margin-bottom: 14px;
+      }
+
+      h1 {
+        font-size: clamp(38px, 5vw, 62px);
+        line-height: 1.05;
+        letter-spacing: -2px;
+      }
+
+      h1 span {
+        color: #19e6c1;
+      }
+
+      .intro {
+        margin-top: 20px;
+        color: #8993a2;
+        line-height: 1.8;
+        font-size: 15px;
+        max-width: 700px;
+      }
+
+      /* PIPELINE */
+
+      .pipeline {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-bottom: 55px;
+      }
+
+      .pipeline-card {
+        padding: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.025);
+        position: relative;
+      }
+
+      .pipeline-number {
+        color: #19e6c1;
+        font-size: 10px;
+        font-weight: 800;
+        margin-bottom: 14px;
+      }
+
+      .pipeline-card h3 {
+        font-size: 14px;
+        margin-bottom: 8px;
+      }
+
+      .pipeline-card p {
+        color: #8993a2;
+        font-size: 11px;
+        line-height: 1.6;
+      }
+
+      /* THEORY */
+
+      .section-title {
+        margin-bottom: 25px;
+      }
+
+      .section-title h2 {
+        font-size: 27px;
+      }
+
+      .section-title p {
+        margin-top: 7px;
+        color: #8993a2;
+        font-size: 13px;
+      }
+
+      .theory-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+      }
+
+      .theory-card {
+        padding: 28px;
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 15px;
+        background: linear-gradient(
+          145deg,
+          rgba(255, 255, 255, 0.035),
+          rgba(255, 255, 255, 0.012)
+        );
+        transition:
+          transform 0.2s,
+          border-color 0.2s;
+      }
+
+      .theory-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(25, 230, 193, 0.2);
+      }
+
+      .number {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 9px;
+        background: rgba(25, 230, 193, 0.08);
+        color: #19e6c1;
+        font-size: 11px;
+        font-weight: 900;
+        margin-bottom: 18px;
+      }
+
+      .theory-card h3 {
+        font-size: 17px;
+        margin-bottom: 10px;
+      }
+
+      .theory-card p {
+        color: #8993a2;
+        font-size: 13px;
+        line-height: 1.75;
+      }
+
+      /* MODEL */
+
+      .model-section {
+        margin-top: 55px;
+      }
+
+      .model-box {
+        padding: 30px;
+        border: 1px solid rgba(25, 230, 193, 0.12);
+        border-radius: 15px;
+        background: rgba(25, 230, 193, 0.025);
+      }
+
+      .model-box h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+
+      .model-box p {
+        color: #8993a2;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+
+      .flow {
+        margin-top: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .flow-item {
+        padding: 11px 15px;
+        border-radius: 7px;
+        background: rgba(25, 230, 193, 0.08);
+        color: #19e6c1;
+        font-size: 10px;
+        font-weight: 800;
+      }
+
+      .arrow {
+        color: #596271;
+      }
+
+      /* TECH */
+
+      .tech-section {
+        margin-top: 55px;
+      }
+
+      .tech-grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 10px;
+      }
+
+      .tech {
+        padding: 15px 10px;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 8px;
+        color: #8993a2;
+        font-size: 11px;
+      }
+
+      /* FOOTER */
+
+      footer {
+        margin-top: 70px;
+        padding: 25px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        text-align: center;
+        color: #596271;
+        font-size: 11px;
+      }
+
+      /* MOBILE */
+
+      @media (max-width: 800px) {
+        .navbar {
+          padding: 0 5%;
+        }
+
+        .nav-links a:not(.back-button) {
+          display: none;
+        }
+
+        .pipeline {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .theory-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .tech-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+
+        .container {
+          padding: 45px 0;
+        }
+      }
+
+      @media (max-width: 500px) {
+        .pipeline {
+          grid-template-columns: 1fr;
+        }
+
+        .tech-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        h1 {
+          font-size: 40px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+
+    <nav class="navbar">
+      <div class="logo">
+        <div class="logo-mark">AV</div>
+
+        <div class="logo-text">Auto<span>Value</span></div>
+      </div>
+
+      <div class="nav-links">
+        <a href="/" class="home-nav-link"> Home </a>
+
+        <a href="car-intake.html"> Predict Price </a>
+
+        <a href="frontpage.html" class="back-button"> Back to Home </a>
+      </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+
+    <main class="container">
+      <section class="header">
+        <div class="tag">ABOUT AUTOVALUE</div>
+
+        <h1>How <span>AutoValue</span> Works</h1>
+
+        <p class="intro">
+          AutoValue is a machine learning based used-car price prediction
+          system. It analyzes important vehicle characteristics and estimates
+          the expected market price of a used car.
+        </p>
+      </section>
+
+      <!-- PIPELINE -->
+
+      <section class="pipeline">
+        <div class="pipeline-card">
+          <div class="pipeline-number">01</div>
+
+          <h3>Car Information</h3>
+
+          <p>Vehicle details are collected from the user.</p>
+        </div>
+
+        <div class="pipeline-card">
+          <div class="pipeline-number">02</div>
+
+          <h3>Preprocessing</h3>
+
+          <p>Input values are converted into model-ready data.</p>
+        </div>
+
+        <div class="pipeline-card">
+          <div class="pipeline-number">03</div>
+
+          <h3>ML Prediction</h3>
+
+          <p>The trained machine learning model estimates the price.</p>
+        </div>
+
+        <div class="pipeline-card">
+          <div class="pipeline-number">04</div>
+
+          <h3>Final Price</h3>
+
+          <p>The estimated price is adjusted and displayed.</p>
+        </div>
+      </section>
+
+      <!-- THEORY -->
+
+      <section>
+        <div class="section-title">
+          <h2>System Workflow</h2>
+
+          <p>The complete process behind the AutoValue prediction system.</p>
+        </div>
+
+        <div class="theory-grid">
+          <div class="theory-card">
+            <div class="number">01</div>
+
+            <h3>Vehicle Information</h3>
+
+            <p>
+              The user provides important information about the vehicle
+              including the car model, company, manufacturing year, kilometres
+              driven and fuel type. Ownership information is also collected
+              because the number of previous owners can affect the resale value
+              of a used vehicle.
+            </p>
+          </div>
+
+          <div class="theory-card">
+            <div class="number">02</div>
+
+            <h3>Data Preprocessing</h3>
+
+            <p>
+              Before prediction, the input data must be converted into the same
+              format used during model training. Numerical features such as year
+              and kilometres are passed as numerical values, while categorical
+              features such as company, model and fuel type are encoded for the
+              machine learning model.
+            </p>
+          </div>
+
+          <div class="theory-card">
+            <div class="number">03</div>
+
+            <h3>Machine Learning Model</h3>
+
+            <p>
+              AutoValue uses a trained Linear Regression model. The model learns
+              relationships between vehicle characteristics and historical
+              used-car prices. During prediction, the trained model receives the
+              processed vehicle information and generates a base estimated
+              price.
+            </p>
+          </div>
+
+          <div class="theory-card">
+            <div class="number">04</div>
+
+            <h3>Ownership Adjustment</h3>
+
+            <p>
+              A used car with more previous owners can have a different resale
+              value. AutoValue therefore applies an ownership-based adjustment
+              to the base prediction. First Owner has no reduction, while
+              subsequent ownership levels receive the configured reduction.
+            </p>
+          </div>
+
+          <div class="theory-card">
+            <div class="number">05</div>
+
+            <h3>Price Prediction</h3>
+
+            <p>
+              After preprocessing and model inference, the system calculates the
+              final estimated price. The result is then returned by the FastAPI
+              backend and displayed through the AutoValue interface.
+            </p>
+          </div>
+
+          <div class="theory-card">
+            <div class="number">06</div>
+
+            <h3>User Interface</h3>
+
+            <p>
+              The frontend provides a simple interface for entering vehicle
+              information, requesting predictions and viewing previous
+              predictions. The frontend communicates with the FastAPI backend
+              through REST API endpoints.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- MODEL -->
+
+      <section class="model-section">
+        <div class="section-title">
+          <h2>Machine Learning Pipeline</h2>
+
+          <p>From raw vehicle information to the final estimated price.</p>
+        </div>
+
+        <div class="model-box">
+          <h3>AutoValue Prediction Architecture</h3>
+
+          <p>
+            The complete prediction process follows a simple machine learning
+            pipeline.
+          </p>
+
+          <div class="flow">
+            <div class="flow-item">CAR DATA</div>
+
+            <div class="arrow">→</div>
+
+            <div class="flow-item">PREPROCESSING</div>
+
+            <div class="arrow">→</div>
+
+            <div class="flow-item">LINEAR REGRESSION</div>
+
+            <div class="arrow">→</div>
+
+            <div class="flow-item">OWNER ADJUSTMENT</div>
+
+            <div class="arrow">→</div>
+
+            <div class="flow-item">FINAL PRICE</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TECHNOLOGY -->
+
+      <section class="tech-section">
+        <div class="section-title">
+          <h2>Technology Stack</h2>
+
+          <p>Technologies used to build AutoValue.</p>
+        </div>
+
+        <div class="tech-grid">
+          <div class="tech">Python</div>
+
+          <div class="tech">Pandas</div>
+
+          <div class="tech">Scikit-learn</div>
+
+          <div class="tech">FastAPI</div>
+
+          <div class="tech">HTML / CSS</div>
+
+          <div class="tech">JavaScript</div>
+        </div>
+      </section>
+
+      <footer>AutoValue — AI Powered Used Car Price Prediction</footer>
+    </main>
+  </body>
+</html>
+```
