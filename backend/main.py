@@ -1,19 +1,19 @@
-from fastapi import FastAPI, HTTPException
+import logging
+import os
+import pickle
+import uuid
+from datetime import UTC, datetime
+
+import pandas as pd
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-import pickle
-import pandas as pd
-import os
-import uuid
-from datetime import datetime
-import logging
-app = FastAPI()
 
+app = FastAPI()
 
 # -----------------------------
 # CORS
 # -----------------------------
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,60 +22,33 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # -----------------------------
-# LOAD MODEL
+# LOAD MODEL & DATA
 # -----------------------------
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-
-# =========================================================
-# LOAD MODEL
-# =========================================================
-
-model_path = os.path.join(
-    BASE_DIR,
-    "LinearRegression.pkl"
-)
-
+model_path = os.path.join(BASE_DIR, "LinearRegression.pkl")
 with open(model_path, "rb") as file:
     model = pickle.load(file)
 
-
-# -----------------------------
-# LOAD DATA
-# -----------------------------
-
-data_path = os.path.join(
-    BASE_DIR,
-    "Data",
-    "Cleaned Car.csv"
-)
-
+data_path = os.path.join(BASE_DIR, "Data", "Cleaned Car.csv")
 car = pd.read_csv(data_path)
 
-
-# =========================================================
+# -----------------------------
 # IN-MEMORY PREDICTION HISTORY
-# =========================================================
-
-# This stores predictions while FastAPI is running.
-# Data will be lost when the server restarts.
-
+# -----------------------------
 predictions_db = []
-
-# -----------------------------
-# REQUEST MODEL
-# -----------------------------
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
-
 logger = logging.getLogger(__name__)
 
+
+# -----------------------------
+# REQUEST MODEL
+# -----------------------------
 class CarData(BaseModel):
     name: str = Field(min_length=1)
     company: str = Field(min_length=1)
@@ -83,70 +56,63 @@ class CarData(BaseModel):
     kms_driven: int = Field(ge=0, le=1000000)
     fuel_type: str = Field(min_length=1)
     owner: str = Field(min_length=1)
-# -----------------------------
-# HOME
-# -----------------------------
 
+
+# -----------------------------
+# ENDPOINTS
+# -----------------------------
 @app.get("/")
 def home():
-    return {
-        "message": "Car Price Prediction API is running"
-    }
+    return {"message": "Car Price Prediction API is running"}
 
 
-# -----------------------------
-# GET OPTIONS
-# -----------------------------
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
 
 @app.get("/options")
 def options():
-
     encoder = (
         model
         .named_steps["columntransformer"]
         .named_transformers_["onehotencoder"]
     )
-
     categories = encoder.categories_
 
     return {
-            "car_models": categories[0].tolist(),
-            "companies": categories[1].tolist(),
-            "fuel_types": categories[2].tolist(),
-            "owners": [
-                "First Owner",
-                "Second Owner",
-                "Third Owner",
-                "Fourth Owner"
-            ]
-}
+        "car_models": categories[0].tolist(),
+        "companies": categories[1].tolist(),
+        "fuel_types": categories[2].tolist(),
+        "owners": [
+            "First Owner",
+            "Second Owner",
+            "Third Owner",
+            "Fourth Owner",
+        ],
+    }
 
-# -----------------------------
-# PREDICT
-# -----------------------------
 
 @app.post("/predict")
 def predict(data: CarData):
-
     input_data = pd.DataFrame(
         [[
             data.name,
             data.company,
             data.year,
             data.kms_driven,
-            data.fuel_type
+            data.fuel_type,
         ]],
         columns=[
             "name",
             "company",
             "year",
             "kms_driven",
-            "fuel_type"
-        ]
+            "fuel_type",
+        ],
     )
 
     try:
-
         prediction = model.predict(input_data)
         base_price = float(prediction[0])
 
@@ -154,15 +120,11 @@ def predict(data: CarData):
             "First Owner": 0.00,
             "Second Owner": 0.05,
             "Third Owner": 0.10,
-            "Fourth Owner": 0.20
+            "Fourth Owner": 0.20,
         }
 
         discount = owner_adjustments.get(data.owner, 0.00)
-
-        predicted_price = round(
-        base_price * (1 - discount),
-        2
-    )
+        predicted_price = round(base_price * (1 - discount), 2)
 
         record = {
             "id": str(uuid.uuid4()),
@@ -173,42 +135,32 @@ def predict(data: CarData):
             "fuel_type": data.fuel_type,
             "owner": data.owner,
             "predicted_price": predicted_price,
-            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            "created_at": datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S"),
         }
-
 
         predictions_db.append(record)
 
-        return {
-            "predicted_price": predicted_price
-        }
+        return {"predicted_price": predicted_price}
 
     except Exception as e:
+        logger.error(f"Prediction failed: {e}")
+        return {"error": str(e)}
 
-        return {
-            "error": str(e)
-        }
+
 @app.get("/predictions")
 def get_predictions():
-
-    global predictions_db
-
-    # Give old records an ID
     for p in predictions_db:
         if "id" not in p:
             p["id"] = str(uuid.uuid4())
 
-    return {
-        "predictions": list(reversed(predictions_db))
-    }
+    return {"predictions": list(reversed(predictions_db))}
+
 
 @app.delete("/predictions/{prediction_id}")
 def delete_prediction(prediction_id: str):
-
     global predictions_db
 
     old_count = len(predictions_db)
-
     predictions_db = [
         p for p in predictions_db
         if p.get("id") != prediction_id
@@ -217,18 +169,11 @@ def delete_prediction(prediction_id: str):
     if len(predictions_db) == old_count:
         return {
             "success": False,
-            "message": "Prediction not found"
+            "message": "Prediction not found",
         }
 
     return {
         "success": True,
         "message": "Prediction deleted",
-        "deleted": prediction_id
-    }
-
-
-@app.get("/health")
-def health():
-    return {
-        "status": "ok"
+        "deleted": prediction_id,
     }

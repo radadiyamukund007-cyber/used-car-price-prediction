@@ -231,9 +231,9 @@ User enters vehicle details
 
 ---
 
-# 🛠️ Technologies Used
+## 🛠️ Technologies Used
 
-## Machine Learning
+### Machine Learning
 
 - Python
 - Pandas
@@ -242,24 +242,32 @@ User enters vehicle details
 - Linear Regression
 - Pickle
 
-## Backend
+### Backend
 
 - FastAPI
 - Pydantic
 - Uvicorn
 - Python
 
-## Frontend
+### Frontend
 
 - HTML5
 - CSS3
 - JavaScript
 - Fetch API
 
-## Deployment & DevOps
+### Testing & Code Quality
+
+- Pytest
+- FastAPI TestClient
+- Ruff
+- Pyproject configuration
+
+### DevOps
 
 - Docker
 - Docker Compose
+- Nginx
 - Git
 - GitHub
 
@@ -608,17 +616,14 @@ http://localhost:8000/docs
 
 # 🧪 Testing
 
-You can test the backend using:
+The backend includes automated unit and integration tests using `pytest` and FastAPI's `TestClient`.
 
-- FastAPI Swagger UI
-- Browser
-- Postman
-- JavaScript Fetch API
+## Unit Tests
 
-Example:
+Location:
 
 ```text
-http://localhost:8000/docs
+backend/tests/test_unit_logic.py
 ```
 
 ---
