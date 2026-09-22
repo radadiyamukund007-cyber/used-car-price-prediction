@@ -8,14 +8,25 @@ The application allows users to enter vehicle information such as company, model
 
 ## 🌐 Live Demo
 
-**Frontend:**
-`[ URL will be added after deployment ]`
+### Frontend
 
-**Backend API:**
-`[ URL will be added after deployment ]`
+https://used-car-price-frontend-5wv0.onrender.com
 
-**API Documentation:**
-`[ URL will be added after deployment ]`
+### Backend API
+
+https://used-car-price-prediction-pknt.onrender.com
+
+### Swagger API Documentation
+
+https://used-car-price-prediction-pknt.onrender.com/docs
+
+### API Health Check
+
+https://used-car-price-prediction-pknt.onrender.com/health
+
+### GitHub Repository
+
+https://github.com/radadiyamukund007-cyber/used-car-price-prediction
 
 ---
 
@@ -31,6 +42,7 @@ The system combines:
 - ⚡ FastAPI REST API
 - 🌐 HTML, CSS & JavaScript frontend
 - 🐳 Docker containerization
+- ☁️ Cloud deployment
 - 📊 Prediction history
 - 🔎 Car/model search
 - 🧾 Owner-based price adjustment
@@ -172,19 +184,19 @@ User enters vehicle details
      FastAPI API
           │
           ▼
-  Input validation
+   Input validation
           │
           ▼
  Machine Learning Model
           │
           ▼
-   Base price prediction
+  Base price prediction
           │
           ▼
   Owner price adjustment
           │
           ▼
-   Final estimated price
+  Final estimated price
           │
           ▼
       Frontend UI
@@ -196,12 +208,12 @@ User enters vehicle details
 
 ```text
                  ┌─────────────────────┐
-                 │       User          │
+                 │        User         │
                  └──────────┬──────────┘
                             │
                             ▼
                  ┌─────────────────────┐
-                 │ Frontend            │
+                 │      Frontend       │
                  │ HTML/CSS/JavaScript │
                  └──────────┬──────────┘
                             │
@@ -209,7 +221,7 @@ User enters vehicle details
                             │
                             ▼
                  ┌─────────────────────┐
-                 │ FastAPI Backend     │
+                 │   FastAPI Backend   │
                  │                     │
                  │ /predict            │
                  │ /predictions        │
@@ -219,8 +231,8 @@ User enters vehicle details
                             │
                             ▼
                  ┌─────────────────────┐
-                 │ ML Model            │
-                 │ Linear Regression    │
+                 │      ML Model       │
+                 │  Linear Regression  │
                  └──────────┬──────────┘
                             │
                             ▼
@@ -263,13 +275,14 @@ User enters vehicle details
 - Ruff
 - Pyproject configuration
 
-### DevOps
+### DevOps & Deployment
 
 - Docker
 - Docker Compose
 - Nginx
 - Git
 - GitHub
+- Render
 
 ---
 
@@ -283,6 +296,10 @@ used-car-price-prediction/
 │   ├── Data/
 │   │   └── Cleaned Car.csv
 │   │
+│   ├── tests/
+│   │   ├── test_unit_logic.py
+│   │   └── test_api_routes.py
+│   │
 │   ├── main.py
 │   ├── LinearRegression.pkl
 │   ├── requirements.txt
@@ -291,12 +308,15 @@ used-car-price-prediction/
 │
 ├── frontend/
 │   │
+│   ├── index.html
 │   ├── car-intake.html
+│   ├── about.html
 │   ├── Dockerfile
 │   ├── nginx.conf
 │   └── .dockerignore
 │
 ├── docker-compose.yml
+├── pyproject.toml
 ├── .gitignore
 └── README.md
 ```
@@ -309,16 +329,16 @@ The backend is built using **FastAPI**.
 
 ## Base URL
 
-Local:
+### Local
 
 ```text
 http://localhost:8000
 ```
 
-After deployment:
+### Production
 
 ```text
-[ BACKEND URL WILL BE ADDED HERE ]
+https://used-car-price-prediction-pknt.onrender.com
 ```
 
 ---
@@ -341,7 +361,7 @@ Example response:
 
 ### `GET /health`
 
-Health check endpoint.
+Health check endpoint used to verify that the backend is running.
 
 Example response:
 
@@ -427,10 +447,10 @@ Local:
 http://localhost:8000/docs
 ```
 
-Deployment:
+Production:
 
 ```text
-[ API DOCUMENTATION URL WILL BE ADDED AFTER DEPLOYMENT ]
+https://used-car-price-prediction-pknt.onrender.com/docs
 ```
 
 ### ReDoc
@@ -439,6 +459,12 @@ Local:
 
 ```text
 http://localhost:8000/redoc
+```
+
+Production:
+
+```text
+https://used-car-price-prediction-pknt.onrender.com/redoc
 ```
 
 ---
@@ -511,19 +537,27 @@ http://localhost:8000/docs
 
 The frontend is a static HTML/CSS/JavaScript application.
 
-Open:
+The main landing page is:
+
+```text
+frontend/index.html
+```
+
+The prediction interface is:
 
 ```text
 frontend/car-intake.html
 ```
 
-in a browser.
-
-The frontend communicates with the FastAPI backend running on:
+The project information page is:
 
 ```text
-http://127.0.0.1:8000
+frontend/about.html
 ```
+
+For local development, the frontend can be served using a local web server or through Docker.
+
+The frontend communicates with the FastAPI backend.
 
 ---
 
@@ -614,6 +648,95 @@ http://localhost:8000/docs
 
 ---
 
+# ☁️ Deployment
+
+The application is deployed using **Render**.
+
+## Frontend Deployment
+
+The frontend is deployed as a Render Static Site.
+
+```text
+Frontend
+    ↓
+Render Static Site
+    ↓
+index.html
+    ↓
+HTML/CSS/JavaScript
+```
+
+Production URL:
+
+```text
+https://used-car-price-frontend-5wv0.onrender.com
+```
+
+---
+
+## Backend Deployment
+
+The backend is deployed as a Render Web Service.
+
+```text
+Backend
+    ↓
+Render Web Service
+    ↓
+FastAPI
+    ↓
+Uvicorn
+    ↓
+Machine Learning Model
+```
+
+Production URL:
+
+```text
+https://used-car-price-prediction-pknt.onrender.com
+```
+
+---
+
+## Production API Documentation
+
+Swagger UI:
+
+```text
+https://used-car-price-prediction-pknt.onrender.com/docs
+```
+
+Health check:
+
+```text
+https://used-car-price-prediction-pknt.onrender.com/health
+```
+
+---
+
+## 🌍 Production Architecture
+
+```text
+                    Internet
+                       │
+             ┌─────────┴─────────┐
+             │                   │
+             ▼                   ▼
+      Render Frontend      Render Backend
+             │                   │
+       Static Website          FastAPI
+             │                   │
+             │                   ▼
+             │              ML Model
+             │                   │
+             └────── HTTP ───────┘
+                       │
+                       ▼
+                Predicted Price
+```
+
+---
+
 # 🧪 Testing
 
 The backend includes automated unit and integration tests using `pytest` and FastAPI's `TestClient`.
@@ -624,6 +747,38 @@ Location:
 
 ```text
 backend/tests/test_unit_logic.py
+```
+
+The unit tests validate:
+
+- Pydantic request schema
+- Manufacturing year boundaries
+- Mileage boundaries
+- Required fields
+- Empty string validation
+
+## API Tests
+
+Location:
+
+```text
+backend/tests/test_api_routes.py
+```
+
+The API tests cover:
+
+- `/`
+- `/health`
+- `/options`
+- `/predict`
+- `/predictions`
+- `/predictions/{id}`
+
+Run tests with:
+
+```powershell
+cd D:\Project\backend
+pytest -v
 ```
 
 ---
@@ -703,41 +858,10 @@ Invalid requests are rejected by the API.
 
 ---
 
-# 🚀 Deployment
-
-The application is Docker-ready and can be deployed using a cloud platform supporting Docker/FastAPI.
-
-### Frontend URL
-
-```text
-[ ADD FRONTEND URL AFTER DEPLOYMENT ]
-```
-
-### Backend URL
-
-```text
-[ ADD BACKEND URL AFTER DEPLOYMENT ]
-```
-
-### Swagger API URL
-
-```text
-[ ADD SWAGGER URL AFTER DEPLOYMENT ]
-```
-
-### GitHub Repository
-
-```text
-[ ADD GITHUB REPOSITORY URL ]
-```
-
----
-
 # 🔮 Future Improvements
 
 Potential improvements include:
 
-- [ ] Deploy frontend and backend
 - [ ] Add a database instead of in-memory prediction storage
 - [ ] Add user authentication
 - [ ] Improve machine learning model performance
@@ -748,7 +872,6 @@ Potential improvements include:
 - [ ] Add image-based vehicle analysis
 - [ ] Add automated CI/CD using GitHub Actions
 - [ ] Add automated model retraining
-- [ ] Add unit and integration tests
 
 ---
 
@@ -770,6 +893,7 @@ This project demonstrates practical experience with:
 - Nginx
 - Git and GitHub
 - API testing
+- Cloud deployment
 - Full-stack ML application development
 
 ---
@@ -786,17 +910,19 @@ BTech — Artificial Intelligence & Machine Learning
 
 ```text
 Machine Learning
-      +
+       +
 FastAPI
-      +
+       +
 HTML/CSS/JavaScript
-      +
+       +
 Docker
-      +
+       +
 REST API
-      +
+       +
 Prediction Dashboard
-      =
+       +
+Cloud Deployment
+       =
 Complete ML Web Application
 ```
 
