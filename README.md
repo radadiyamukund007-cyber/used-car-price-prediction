@@ -890,7 +890,6 @@ This project demonstrates practical experience with:
 - HTTP and JSON communication
 - Docker
 - Docker Compose
-- Nginx
 - Git and GitHub
 - API testing
 - Cloud deployment
